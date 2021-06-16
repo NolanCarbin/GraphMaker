@@ -1,27 +1,28 @@
 
 def getCellBounds(app, row, col):
-    gridWidth = app.width - app.margin * 2
-    gridHeight = app.height * 3/4
+    gridWidth = app.width - app.xMargin * 2
+    gridHeight = app.height - (app.yMarginTop + app.yMarginBottom)
     cellWidth = gridWidth / app.cols
     cellHeight = gridHeight / app.rows
-    x0 = col * cellWidth + app.margin
-    y0 = row * cellHeight + (app.height // 4 - app.margin)
+    x0 = col * cellWidth + app.xMargin
+    y0 = row * cellHeight + app.yMarginTop
     x1 = x0 + cellWidth
     y1 = y0 + cellHeight
     return x0, y0, x1, y1
 
 def getCell(app, x, y):
-    gridWidth = app.width - app.margin * 2
-    gridHeight = app.height * 3/4
+    if not insideGrid(app, x, y): return None
+    gridWidth = app.width - app.xMargin * 2
+    gridHeight = app.height - (app.yMarginTop + app.yMarginBottom)
     cellWidth = gridWidth / app.cols
     cellHeight = gridHeight / app.rows
-    row = int((y - (app.height // 4 - app.margin)) / cellHeight)
-    col = int((x - app.margin) / cellWidth)
-    print(x, y)
-    print(col, row)
-    if row not in range(0, app.rows) or col not in range(0, app.cols):
-        return 
+    row = int((y - app.yMarginTop) / cellHeight)
+    col = int((x - app.xMargin) / cellWidth)
     return row, col
+
+def insideGrid(app, x, y):
+    return (app.xMargin <= x <= app.width - app.xMargin and 
+            app.yMarginTop <= y <= app.height - app.yMarginBottom)
 
 def drawGrid(app, canvas):
     for row in range(app.rows):

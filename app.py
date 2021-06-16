@@ -5,7 +5,9 @@ from grid import *
 def appStarted(app):
     app.rows = 20
     app.cols = 30
-    app.margin = 10
+    app.xMargin = 10
+    app.yMarginTop = 150
+    app.yMarginBottom = 10
     app.startingNode = (9,9)
     app.targetNode = (9,20)
     app.wallNodes = set()
