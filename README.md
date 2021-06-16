@@ -1,0 +1,1 @@
+Pathfinding Builder is a project which the user can create graphs and visualize different pathfinding algorithms. 
