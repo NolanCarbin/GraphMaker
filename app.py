@@ -1,10 +1,13 @@
 from cmu_112_graphics import *
+from collections import deque
 from grid import *
 from graph import *
 from bfs import *
 
 
 def appStarted(app):
+    app.timerDelay = 50
+
     app.rows = 20
     app.cols = 30
     app.xMargin = 10
@@ -18,14 +21,29 @@ def appStarted(app):
     app.movingWallNode = False
     app.currentPath = []
 
+    app.fastMode = False
+    app.mediumMode = True
+    app.slowMode = False
+
+    app.bfsSearchQueue = deque()
+    app.visualizedQueue = deque()
+    app.visualizedIndex = 0
+    app.isVisualizing = False
+    
+    app.timer = 0
+    
+
 def appStopped(app):
     pass
 
 def mousePressed(app, event):
-    moveNodes(app, event)
-    inBoundsOfNodeButtons(app, event)
     inBoundsOfResetButtons(app, event)
-    inBoundsOfAlgoButtons(app, event)
+    inBoundsOfSpeedButtons(app, event)
+    if not app.isVisualizing:
+        moveNodes(app, event)
+        inBoundsOfNodeButtons(app, event)
+        inBoundsOfAlgoButtons(app, event)
+        
 
 def moveNodes(app, event):
     currentNode = getCell(app, event.x, event.y)
@@ -79,6 +97,32 @@ def inBoundsOfNodeButtons(app, event):
         if app.movingWallNode:
             app.movingStartingNode = False
             app.movingTargetNode = False
+
+def inBoundsOfSpeedButtons(app, event):
+    #fast speed
+    if inBounds(event.x, event.y, app.width - 300, 20, app.width - 280, 40):
+        print('fast')
+        app.timerDelay = 0 
+        app.fastMode = True
+        if app.fastMode:
+            app.mediumMode = False
+            app.slowMode = False
+    #medium speed
+    if inBounds(event.x, event.y, app.width - 300, 60, app.width - 280, 80): 
+        print('md')
+        app.timerDelay = 35 
+        app.mediumMode = True
+        if app.mediumMode:
+            app.fastMode = False
+            app.slowMode = False
+    #slow speed
+    if inBounds(event.x, event.y, app.width - 300, 100, app.width - 280, 120): 
+        print('slow')
+        app.timerDelay = 100 
+        app.slowMode = True
+        if app.slowMode:
+            app.fastMode = False
+            app.mediumMode = False
     
 def inBoundsOfResetButtons(app, event):
     if inBounds(event.x, event.y, app.width-140, 20, app.width-20, 60):
@@ -86,32 +130,71 @@ def inBoundsOfResetButtons(app, event):
     if inBounds(event.x, event.y, app.width-140, 80, app.width-20, 120):
         app.wallNodes = set()
         app.currentPath = [ ]
+        app.bfsSearchQueue = deque()
+        app.visualizedQueue = deque()
+        app.visualizedIndex = 0
+        app.isVisualizing = False
+        
 
 def inBoundsOfAlgoButtons(app, event):
     if inBounds(event.x, event.y, 300, 20, 420, 60):
         graph = createAdjacencyList(initNodeList(app), 1)
-        app.currentPath = bfsSearch(graph,app.startingNode,app.targetNode)
+        app.currentPath = bfsSearch(app, graph,app.startingNode,app.targetNode)
+        if app.currentPath != None:
+            app.isVisualizing = True
 
     elif inBounds(event.x, event.y, 500, 20, 620, 60):
+        graph = createAdjacencyList(initNodeList(app), 1)
         print('dfs')
 
 def keyPressed(app, event):
     pass
 
 def timerFired(app):
-    pass
+    # app.timer += 1
+    bfsVisualizer(app)
+    
+
+def bfsVisualizer(app):
+    if app.currentPath != None:
+        if len(app.bfsSearchQueue) >= 1:
+            if app.visualizedIndex < len(app.bfsSearchQueue) - 1:
+                app.visualizedIndex += 1
+                app.visualizedQueue.append(app.bfsSearchQueue[app.visualizedIndex])
+            else:
+                app.isVisualizing = False
+
+# def isOneSecond(app):
+#     return app.timer % 10 == 0
 
 
 def redrawAll(app, canvas):
     drawGrid(app, canvas)
-    drawCurrentPath(app, canvas)
+    drawVisualizedQueue(app, canvas)
+    if not app.isVisualizing:
+        drawCurrentPath(app, canvas)
     drawStartingNode(app, canvas)
     drawTargetNode(app, canvas)
     drawWallNodes(app, canvas)
     drawNodeButtons(app, canvas)
     drawAlgorithmButtons(app, canvas)
     drawResetButtons(app, canvas)
+    drawSpeedButtons(app, canvas)
+
     
+    
+def drawVisualizedQueue(app, canvas):
+    if len(app.visualizedQueue) >= 1:
+        for row, col in app.visualizedQueue:
+            x0,y0,x1,y1 = getCellBounds(app, row, col)
+            canvas.create_rectangle(x0,y0,x1,y1,fill='light blue')
+
+def drawCurrentPath(app, canvas):
+    if app.currentPath == None: return
+    for row, col in app.currentPath:
+        x0,y0,x1,y1 = getCellBounds(app, row, col)
+        canvas.create_rectangle(x0,y0,x1,y1,fill='yellow')
+
 
 
 def drawNodeButtons(app, canvas):
@@ -148,10 +231,27 @@ def drawResetButtons(app, canvas):
     canvas.create_rectangle(app.width-140, 80, app.width-20, 120)
     canvas.create_text(app.width-80, 100, text='Clear Path')
 
-def drawCurrentPath(app, canvas):
-    if app.currentPath == None: return
-    for row, col in app.currentPath:
-        x0,y0,x1,y1 = getCellBounds(app, row, col)
-        canvas.create_rectangle(x0,y0,x1,y1,fill='yellow')
+def drawSpeedButtons(app, canvas):
+    if app.fastMode:
+        fastModeColor = 'black'
+    else:
+        fastModeColor = 'white'
+    canvas.create_rectangle(app.width - 300, 20, app.width - 280, 40, fill=fastModeColor)
+    canvas.create_text(app.width - 270, 30, text='Fast', anchor='w')
+
+    if app.mediumMode:
+        mediumModeColor = 'black'
+    else:
+        mediumModeColor = 'white'
+    canvas.create_rectangle(app.width - 300, 60, app.width - 280, 80, fill=mediumModeColor)
+    canvas.create_text(app.width - 270, 70, text='Medium', anchor='w')
+
+    if app.slowMode:
+        slowModeColor = 'black'
+    else:
+        slowModeColor = 'white'
+    canvas.create_rectangle(app.width - 300, 100, app.width - 280, 120, fill=slowModeColor)
+    canvas.create_text(app.width - 270, 110, text='Slow', anchor='w')
+
 
 runApp(width=1000, height=600)

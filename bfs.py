@@ -1,13 +1,19 @@
 from collections import deque
 
 
-def bfsSearch(graph, startingNode, targetNode):
+def bfsSearch(app, graph, startingNode, targetNode):
     queue = deque()
     cameFrom = dict()
     cameFrom[startingNode] = None
     queue.append(startingNode)
+    #used for visualizer:
+    app.bfsSearchQueue.append(startingNode)
+    #####################
     while len(queue) != 0:
         currentNode = queue.popleft()
+        #used for visualizer:
+        app.bfsSearchQueue.append(currentNode)
+        #####################
         if currentNode == targetNode:
             return path(startingNode, currentNode, cameFrom)
         for node in graph[currentNode]:
