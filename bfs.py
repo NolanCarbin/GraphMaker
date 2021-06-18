@@ -15,14 +15,14 @@ def bfsSearch(app, graph, startingNode, targetNode):
         app.bfsSearchQueue.append(currentNode)
         #####################
         if currentNode == targetNode:
-            return path(startingNode, currentNode, cameFrom)
+            return bfsPath(startingNode, currentNode, cameFrom)
         for node in graph[currentNode]:
             if node not in cameFrom:
                 cameFrom[node] = currentNode
                 queue.append(node)
     return None
 
-def path(startingNode, currentNode, cameFrom):
+def bfsPath(startingNode, currentNode, cameFrom):
     endPath = []
     while currentNode != startingNode:
         endPath.append(currentNode)
