@@ -1,4 +1,3 @@
-
 def getCellBounds(app, row, col):
     gridWidth = app.width - app.xMargin * 2
     gridHeight = app.height - (app.yMarginTop + app.yMarginBottom)
