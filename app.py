@@ -31,7 +31,12 @@ def appStarted(app):
     app.visualizedIndex = 0
     app.isVisualizing = False
 
-    app.timer = 0
+    # app.timer = 0
+    app.nodeList = initWeightedNodeList(app)
+
+    app.movingWeightNode1 = False
+    app.movingWeightNode3 = False
+    app.movingWeightNode7 = False
     
 def appStopped(app):
     pass
@@ -42,7 +47,9 @@ def mousePressed(app, event):
     if not app.isVisualizing:
         moveNodes(app, event)
         inBoundsOfNodeButtons(app, event)
+        inBoundsOfWeightButtons(app, event)
         inBoundsOfAlgoButtons(app, event)
+
         
 def moveNodes(app, event):
     selectedNode = getCell(app, event.x, event.y)
@@ -51,10 +58,19 @@ def moveNodes(app, event):
         app.movingStartingNode = True
         app.movingTargetNode = False
         app.movingWallNode = False
+
+        app.movingWeightNode1 = False
+        app.movingWeightNode3 = False
+        app.movingWeightNode7 = False
+
     elif selectedNode == app.targetNode: 
         app.movingTargetNode = True
         app.movingStartingNode = False
         app.movingWallNode = False
+
+        app.movingWeightNode1 = False
+        app.movingWeightNode3 = False
+        app.movingWeightNode7 = False
 
     #logic that moves the nodes
     if selectedNode != None:
@@ -62,23 +78,49 @@ def moveNodes(app, event):
             if selectedNode in app.wallNodes:
                 app.wallNodes.remove(selectedNode)
             app.startingNode = selectedNode 
-            refreshForNewSearch(app)
+            refreshForNewVisualize(app)
         elif app.movingTargetNode:
             if selectedNode in app.wallNodes:
                 app.wallNodes.remove(selectedNode)
             app.targetNode = selectedNode
-            refreshForNewSearch(app)
+            refreshForNewVisualize(app)
         elif app.movingWallNode:
             if selectedNode in app.wallNodes:
                 app.wallNodes.remove(selectedNode)
+                #add to app.nodeList
+                row, col = selectedNode
+                app.nodeList.append((row, col, 1))
+                app.nodeList.sort()
             elif selectedNode == app.startingNode or selectedNode == app.targetNode:
                 return
             else:
                 app.wallNodes.add((selectedNode))
-                refreshForNewSearch(app)
+                #remove from app.nodeList
+                for row, col, weight in app.nodeList:
+                    if (row, col) == selectedNode:
+                        app.nodeList.remove((row,col,weight))      
+                refreshForNewVisualize(app)
+
+        elif app.movingWeightNode1:
+            for row, col, weight in app.nodeList:
+                if (row, col) == selectedNode:
+                    index = app.nodeList.index((row,col,weight))
+                    app.nodeList[index] = (row, col, 1)
+        elif app.movingWeightNode3:
+            for row, col, weight in app.nodeList:
+                if (row, col) == selectedNode:
+                    index = app.nodeList.index((row,col,weight))
+                    app.nodeList[index] = (row, col, 3)
+        elif app.movingWeightNode7:
+            for row, col, weight in app.nodeList:
+                if (row, col) == selectedNode:
+                    index = app.nodeList.index((row,col,weight))
+                    app.nodeList[index] = (row, col, 7)
+
 
 def keyPressed(app, event):
-    pass
+    if event.key == 'Space':
+        print(app.nodeList)
 
 def timerFired(app):
     # app.timer += 1
@@ -98,6 +140,7 @@ def redrawAll(app, canvas):
     drawTargetNode(app, canvas)
     drawWallNodes(app, canvas)
     drawNodeButtons(app, canvas)
+    drawWeightedNodes(app, canvas)
     drawAlgorithmButtons(app, canvas)
     drawResetButtons(app, canvas)
     drawSpeedButtons(app, canvas)
