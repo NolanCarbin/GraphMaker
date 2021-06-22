@@ -27,6 +27,8 @@ def appStarted(app):
 
     app.bfsSearchQueue = deque()
     app.dfsSearchStack = deque()
+    app.dijkstraSearchQueue = deque()
+    app.aStarSearchQueue = deque()
     app.visualizedList = [ ]
     app.visualizedIndex = 0
     app.isVisualizing = False
@@ -37,7 +39,10 @@ def appStarted(app):
     app.movingWeightNode1 = False
     app.movingWeightNode3 = False
     app.movingWeightNode7 = False
+    app.movingWeightNodeC = False
     
+    app.customWeight = None
+
 def appStopped(app):
     pass
 
@@ -62,6 +67,7 @@ def moveNodes(app, event):
         app.movingWeightNode1 = False
         app.movingWeightNode3 = False
         app.movingWeightNode7 = False
+        app.movingWeightNodeC = False
 
     elif selectedNode == app.targetNode: 
         app.movingTargetNode = True
@@ -71,6 +77,7 @@ def moveNodes(app, event):
         app.movingWeightNode1 = False
         app.movingWeightNode3 = False
         app.movingWeightNode7 = False
+        app.movingWeightNodeC = False
 
     #logic that moves the nodes
     if selectedNode != None:
@@ -116,6 +123,11 @@ def moveNodes(app, event):
                 if (row, col) == selectedNode:
                     index = app.nodeList.index((row,col,weight))
                     app.nodeList[index] = (row, col, 7)
+        elif app.movingWeightNodeC:
+            for row, col, weight in app.nodeList:
+                if (row, col) == selectedNode:
+                    index = app.nodeList.index((row,col,weight))
+                    app.nodeList[index] = (row, col, app.customWeight)
 
 
 def keyPressed(app, event):
@@ -126,6 +138,8 @@ def timerFired(app):
     # app.timer += 1
     bfsVisualizer(app)
     dfsVisualizer(app) 
+    dijkstraVisualizer(app)
+    aStarVisualizer(app)
 
 # def isOneSecond(app):
 #     return app.timer % 10 == 0
@@ -133,7 +147,7 @@ def timerFired(app):
 
 def redrawAll(app, canvas):
     drawGrid(app, canvas)
-    drawvisualizedList(app, canvas)
+    drawVisualizedList(app, canvas)
     if not app.isVisualizing:
         drawPath(app, canvas)
     drawStartingNode(app, canvas)

@@ -1,8 +1,10 @@
 from collections import deque
 from graph import *
+from intToColor import intToColor
 from bfs import *
 from dfs import *
 from dijkstra import *
+from aStar import *
 
 def inBounds(x, y, recX0, recY0, recX1, recY1):
     return (recX0 <= x <= recX1 and recY0 <= y <= recY1)
@@ -18,6 +20,7 @@ def inBoundsOfNodeButtons(app, event):
             app.movingWeightNode1 = False
             app.movingWeightNode3 = False
             app.movingWeightNode7 = False
+            app.movingWeightNodeC = False
     #target node button
     if inBounds(event.x, event.y, 20, 60, 40, 80): 
         app.movingTargetNode = not app.movingTargetNode
@@ -28,6 +31,7 @@ def inBoundsOfNodeButtons(app, event):
             app.movingWeightNode1 = False
             app.movingWeightNode3 = False
             app.movingWeightNode7 = False
+            app.movingWeightNodeC = False
     #wall node button
     if inBounds(event.x, event.y, 20, 100, 40, 120): 
         app.movingWallNode = not app.movingWallNode
@@ -38,6 +42,7 @@ def inBoundsOfNodeButtons(app, event):
             app.movingWeightNode1 = False
             app.movingWeightNode3 = False
             app.movingWeightNode7 = False
+            app.movingWeightNodeC = False
 
 def inBoundsOfWeightButtons(app, event):
     #weight node 1
@@ -50,6 +55,7 @@ def inBoundsOfWeightButtons(app, event):
 
             app.movingWeightNode3 = False
             app.movingWeightNode7 = False
+            app.movingWeightNodeC = False
     #Weight Node 3
     if inBounds(event.x, event.y, 150, 60, 170, 80): 
         app.movingWeightNode3 = not app.movingWeightNode3
@@ -60,6 +66,7 @@ def inBoundsOfWeightButtons(app, event):
 
             app.movingWeightNode1 = False
             app.movingWeightNode7 = False
+            app.movingWeightNodeC = False
     #Weight Node 7
     if inBounds(event.x, event.y, 150, 100, 170, 120): 
         app.movingWeightNode7 = not app.movingWeightNode7
@@ -70,6 +77,19 @@ def inBoundsOfWeightButtons(app, event):
 
             app.movingWeightNode3 = False
             app.movingWeightNode1 = False
+            app.movingWeightNodeC = False
+    #custom weight node
+    if inBounds(event.x, event.y, 280, 20, 300, 40): 
+        app.movingWeightNodeC = True
+        app.customWeight = int(input('Please enter a weight: '))
+        if app.movingWeightNodeC:
+            app.movingStartingNode = False
+            app.movingTargetNode = False
+            app.movingWallNode = False
+
+            app.movingWeightNode3 = False
+            app.movingWeightNode1 = False
+            app.movingWeightNode7 = False
 
 
 #Doesn't remove the current walling
@@ -77,6 +97,8 @@ def refreshForNewVisualize(app):
     app.path = [ ]
     app.bfsSearchQueue = deque()
     app.dfsSearchStack = deque()
+    app.dijkstraSearchQueue = deque()
+    app.aStarSearchQueue = deque()
     app.visualizedList = [ ]
     app.visualizedIndex = 0
     app.isVisualizing = False
@@ -90,6 +112,7 @@ def inBoundsOfAlgoButtons(app, event):
         app.path = bfsSearch(app, graph, app.startingNode, app.targetNode)
         if app.path != None:
             app.isVisualizing = True
+
     #dfs button
     elif inBounds(event.x, event.y, app.width-400, 20, app.width-280, 60):
         refreshForNewVisualize(app)
@@ -97,23 +120,23 @@ def inBoundsOfAlgoButtons(app, event):
         app.path = dfsSearch(app, graph, app.startingNode, app.targetNode)
         if app.path != None:
             app.isVisualizing = True
+
     #dijkstras button
     elif inBounds(event.x, event.y, app.width-550, 80, app.width-430, 120):
         refreshForNewVisualize(app)
         graph = createWeightedAdjacencyList(app.nodeList, 1)
-        cameFrom = dijkstraSearch(graph, app.startingNode, app.targetNode)
-        app.path = reconstructPath(cameFrom, app.startingNode, app.targetNode)
-        # if app.path != None:
-        #     app.isVisualizing = True
-        print('dijkstra')
+        app.path = dijkstraSearch(app, graph, app.startingNode, app.targetNode)
+        if app.path != None:
+            app.isVisualizing = True
+        
     #A* button
     elif inBounds(event.x, event.y, app.width-400, 80, app.width-280, 120):
         refreshForNewVisualize(app)
-        # graph = createAdjacencyList(initNodeList(app), 1)
-        # app.path = dfsSearch(app, graph, app.startingNode, app.targetNode)
-        # if app.path != None:
-            # app.isVisualizing = True
-        print('A*')
+        graph = createWeightedAdjacencyList(app.nodeList, 1)
+        app.path = aStar(app, graph, app.startingNode, app.targetNode)
+        if app.path != None:
+            app.isVisualizing = True
+        
 
 
 def inBoundsOfSpeedButtons(app, event):
@@ -162,6 +185,8 @@ def restartApp(app):
     app.slowMode = False
     app.bfsSearchQueue = deque()
     app.dfsSearchStack = deque()
+    app.dijkstraSearchQueue = deque()
+    app.aStarSearchQueue = deque()
     app.visualizedList = [ ]
     app.visualizedIndex = 0
     app.isVisualizing = False
@@ -169,6 +194,8 @@ def restartApp(app):
     app.movingWeightNode1 = False
     app.movingWeightNode3 = False
     app.movingWeightNode7 = False
+    app.movingWeightNodeC = False
+
     app.nodeList = initWeightedNodeList(app)
 
 def clearPath(app):
@@ -176,6 +203,8 @@ def clearPath(app):
     app.path = [ ]
     app.bfsSearchQueue = deque()
     app.dfsSearchStack = deque()
+    app.dijkstraSearchQueue = deque()
+    app.aStarSearchQueue = deque()
     app.visualizedList = [ ]
     app.visualizedIndex = 0
     app.isVisualizing = False
@@ -215,7 +244,7 @@ def drawNodeButtons(app, canvas):
 def drawWeightedNodes(app, canvas):
     #1 weight button
     if app.movingWeightNode1:
-        weightNode1 = 'grey'
+        weightNode1 = 'light gray'
     else:
         weightNode1 = 'white'
     canvas.create_rectangle(150, 20, 170, 40, fill=weightNode1)
@@ -234,6 +263,23 @@ def drawWeightedNodes(app, canvas):
         weightNode7 = 'white'           
     canvas.create_rectangle(150, 100, 170, 120, fill=weightNode7)
     canvas.create_text(180, 110, text='7 Weight Node', anchor='w')
+    # custom weight button
+    if app.movingWeightNodeC:
+        if app.customWeight != None:
+            if app.customWeight == 1:
+                customWeightColor = 'white'
+            elif app.customWeight == 3:
+                customWeightColor = 'light green'
+            elif app.customWeight == 7:
+                customWeightColor = 'brown'
+            else:
+                customWeightColor = intToColor(app.customWeight)
+        else:
+            customWeightColor = 'white'
+    else:
+        customWeightColor = 'white'
+    canvas.create_rectangle(280, 20, 300, 40, fill=customWeightColor)
+    canvas.create_text(310, 30, text='Custom Weight Node', anchor='w')
 
 
 

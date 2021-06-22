@@ -1,6 +1,12 @@
 from priorityQueue import PriorityQueue
-#finds the least cost path from startingNode to targetNode 
-def dijkstraSearch(app, graph, startingNode, targetNode):
+
+def heuristic(startingNode, targetNode):
+    x0, y0 = startingNode
+    x1, y1 = targetNode
+    return abs(x0 - x1) + abs(y0 - y1)
+
+
+def aStar(app, graph, startingNode, targetNode):
     queue = PriorityQueue()
     queue.put(startingNode, 0)
     cameFrom = {}
@@ -11,7 +17,7 @@ def dijkstraSearch(app, graph, startingNode, targetNode):
     while not queue.empty():
         current = queue.get()
         #for visualizer:
-        app.dijkstraSearchQueue.append(current)
+        app.aStarSearchQueue.append(current)
         ################
         if current == targetNode:
             return reconstructPath(cameFrom, startingNode, targetNode)
@@ -21,10 +27,9 @@ def dijkstraSearch(app, graph, startingNode, targetNode):
             newCost = costSoFar[current] + weight
             if neighborNode not in costSoFar or newCost < costSoFar[neighborNode]:
                 costSoFar[neighborNode] = newCost
-                priority = newCost
+                priority = newCost + heuristic(neighborNode, targetNode)
                 queue.put(neighborNode, priority)
                 cameFrom[neighborNode] = current
-
     return None
 
 def reconstructPath(cameFrom, startingNode, targetNode):

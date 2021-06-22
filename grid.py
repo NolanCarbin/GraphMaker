@@ -1,3 +1,5 @@
+from intToColor import intToColor
+
 def getCellBounds(app, row, col):
     gridWidth = app.width - app.xMargin * 2
     gridHeight = app.height - (app.yMarginTop + app.yMarginBottom)
@@ -37,6 +39,8 @@ def drawGrid(app, canvas):
             color = 'light green'
         elif weight == 7:
             color = 'brown'
+        else:
+            color = intToColor(weight)
         x0,y0,x1,y1 = getCellBounds(app, row, col)
         canvas.create_rectangle(x0,y0,x1,y1,fill=color)
 
