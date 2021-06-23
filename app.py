@@ -41,7 +41,7 @@ def appStarted(app):
     app.movingWeightNode7 = False
     app.movingWeightNodeC = False
     
-    app.customWeight = None
+    app.customWeight = 1
     app.customWeightMessage = None
     app.changingCustomWeight = False
     app.userInputWeight = ''
@@ -52,7 +52,7 @@ def appStopped(app):
 def mousePressed(app, event):
     inBoundsOfResetButtons(app, event)
     inBoundsOfSpeedButtons(app, event)
-    if not app.isVisualizing:
+    if not app.isVisualizing and not app.changingCustomWeight:
         moveNodes(app, event)
         inBoundsOfNodeButtons(app, event)
         inBoundsOfWeightButtons(app, event)

@@ -81,7 +81,7 @@ def inBoundsOfWeightButtons(app, event):
     #custom weight node
     if inBounds(event.x, event.y, 280, 20, 300, 40): 
         app.movingWeightNodeC = True
-        
+
         app.customWeightMessage = 'Please enter a weight'
         app.changingCustomWeight = True
         # app.customWeight = int(input('Please enter a weight: '))
@@ -105,6 +105,7 @@ def refreshForNewVisualize(app):
     app.visualizedList = [ ]
     app.visualizedIndex = 0
     app.isVisualizing = False
+    
         
 
 def inBoundsOfAlgoButtons(app, event):
@@ -201,6 +202,11 @@ def restartApp(app):
 
     app.nodeList = initWeightedNodeList(app)
 
+    app.customWeight = 1
+    app.customWeightMessage = None
+    app.changingCustomWeight = False
+    app.userInputWeight = ''
+
 def clearPath(app):
     app.wallNodes = set()
     app.path = [ ]
@@ -212,6 +218,10 @@ def clearPath(app):
     app.visualizedIndex = 0
     app.isVisualizing = False
     app.nodeList = initWeightedNodeList(app)
+    app.customWeight = 1
+    app.customWeightMessage = None
+    app.changingCustomWeight = False
+    app.userInputWeight = ''
 
         
 
@@ -276,7 +286,8 @@ def drawWeightedNodes(app, canvas):
             elif app.customWeight == 7:
                 customWeightColor = 'brown'
             else:
-                customWeightColor = intToColor(app.customWeight)
+                if app.customWeight != None:
+                    customWeightColor = intToColor(app.customWeight)
         else:
             customWeightColor = 'white'
     else:
