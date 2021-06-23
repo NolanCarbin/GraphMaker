@@ -3,6 +3,7 @@ from collections import deque
 from visualizer import *
 from grid import *
 from buttons import *
+import string
 
 
 def appStarted(app):
@@ -42,6 +43,9 @@ def appStarted(app):
     app.movingWeightNodeC = False
     
     app.customWeight = None
+    app.customWeightMessage = None
+    app.changingCustomWeight = False
+    app.userInputWeight = ''
 
 def appStopped(app):
     pass
@@ -131,19 +135,27 @@ def moveNodes(app, event):
 
 
 def keyPressed(app, event):
-    if event.key == 'Space':
-        print(app.nodeList)
+    if app.changingCustomWeight:
+        if event.key in string.digits:
+            app.userInputWeight += event.key
+        elif event.key == 'Enter' and app.userInputWeight != '':
+            updateCustomWeight(app)
+        else:
+            app.customWeightMessage = 'Please enter a valid weight'
+            app.userInputWeight = ''
+        
+def updateCustomWeight(app):
+    app.customWeight = int(app.userInputWeight)
+    app.changingCustomWeight = False
+    app.customWeightMessage = None
+    app.userInputWeight = ''
+
 
 def timerFired(app):
-    # app.timer += 1
     bfsVisualizer(app)
     dfsVisualizer(app) 
     dijkstraVisualizer(app)
     aStarVisualizer(app)
-
-# def isOneSecond(app):
-#     return app.timer % 10 == 0
-
 
 def redrawAll(app, canvas):
     drawGrid(app, canvas)
@@ -158,5 +170,6 @@ def redrawAll(app, canvas):
     drawAlgorithmButtons(app, canvas)
     drawResetButtons(app, canvas)
     drawSpeedButtons(app, canvas)
+    drawCustomWeightMessage(app, canvas)
 
 runApp(width=1000, height=600)

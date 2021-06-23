@@ -62,6 +62,12 @@ def drawWallNodes(app, canvas):
         x0,y0,x1,y1 = getCellBounds(app, row, col)
         canvas.create_rectangle(x0,y0,x1,y1,fill='black')
 
+def drawCustomWeightMessage(app, canvas):
+    if app.customWeightMessage != None:
+        width = 300
+        height = 50
+        canvas.create_rectangle(app.width//2 - width, app.height//2 - height, app.width//2 + width, app.height//2 + height, fill='white')
+        canvas.create_text(app.width//2, app.height//2, text=app.customWeightMessage, font='Arial 30 bold')
 
 
 

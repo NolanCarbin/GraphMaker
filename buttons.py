@@ -81,7 +81,10 @@ def inBoundsOfWeightButtons(app, event):
     #custom weight node
     if inBounds(event.x, event.y, 280, 20, 300, 40): 
         app.movingWeightNodeC = True
-        app.customWeight = int(input('Please enter a weight: '))
+        
+        app.customWeightMessage = 'Please enter a weight'
+        app.changingCustomWeight = True
+        # app.customWeight = int(input('Please enter a weight: '))
         if app.movingWeightNodeC:
             app.movingStartingNode = False
             app.movingTargetNode = False
