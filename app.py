@@ -34,7 +34,6 @@ def appStarted(app):
     app.visualizedIndex = 0
     app.isVisualizing = False
 
-    # app.timer = 0
     app.nodeList = initWeightedNodeList(app)
 
     app.movingWeightNode1 = False
@@ -138,6 +137,7 @@ def keyPressed(app, event):
     if app.changingCustomWeight:
         if event.key in string.digits:
             app.userInputWeight += event.key
+            app.customWeightMessage = app.userInputWeight
         elif event.key == 'Enter' and app.userInputWeight != '':
             updateCustomWeight(app)
         else:
