@@ -1,1 +1,1 @@
-Pathfinding Builder is a project which the user can create graphs and visualize different pathfinding algorithms. 
+Pathfinding Builder is an application where the user can control the position of a starting node and a target node on a grid. The user can add walls and custom weighted areas to control the environment of the grid. The user can choose between these pathfinding algorithms to visualize how they work and the path that they create: Breadth-first search, Depth-first Search, Dijkstra's Algorithm, and A* Search.
